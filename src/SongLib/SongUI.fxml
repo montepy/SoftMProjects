@@ -4,19 +4,18 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="SongLib.Controller">
    <children>
       <Button fx:id="Edit" layoutX="277.0" layoutY="42.0" mnemonicParsing="false" onAction="#editSong" text="Edit" />
-      <Pane fx:id="SongDisplay" layoutX="46.0" layoutY="31.0" opacity="0.0" prefHeight="105.0" prefWidth="214.0" />
       <Button fx:id="Left" layoutX="46.0" layoutY="143.0" mnemonicParsing="false" onAction="#Move" text="&lt;=" />
       <Button fx:id="Right" layoutX="219.0" layoutY="143.0" mnemonicParsing="false" onAction="#Move" text="=&gt;" />
       <Button fx:id="Delete" layoutX="277.0" layoutY="96.0" mnemonicParsing="false" onAction="#deleteSong" text="Delete" />
       <TextField fx:id="ArtistField" layoutX="46.0" layoutY="227.0" promptText="Enter Artist" />
       <TextField fx:id="SongField" layoutX="260.0" layoutY="227.0" promptText="Enter Song Name" />
       <Button fx:id="Enter" layoutX="46.0" layoutY="344.0" mnemonicParsing="false" onAction="#enterSong" text="Enter Song" />
-      <ScrollPane fx:id="SongList" hbarPolicy="NEVER" layoutX="376.0" layoutY="12.0" prefHeight="200.0" prefWidth="200.0" />
       <TextField fx:id="AlbumField" layoutX="46.0" layoutY="285.0" promptText="Enter Album" />
       <TextField fx:id="YearField" layoutX="260.0" layoutY="285.0" promptText="Enter Year" />
+      <Label fx:id="SongDisplay" layoutX="46.0" layoutY="42.0" prefHeight="91.0" prefWidth="214.0" text="Placeholder" />
+      <ListView fx:id="listView" layoutX="373.0" layoutY="14.0" prefHeight="200.0" prefWidth="200.0" />
    </children>
 </AnchorPane>
