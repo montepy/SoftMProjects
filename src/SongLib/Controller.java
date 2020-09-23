@@ -2,8 +2,11 @@ package SongLib;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Scanner;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,9 +28,8 @@ public class Controller {
 	@FXML TextField YearField;
 	@FXML TextField AlbumField;
 	@FXML ScrollPane SongList;
-	@FXML Pane SongDisplay;
-	
-	ListView<String> listView;
+	@FXML Label SongDisplay;
+	@FXML ListView<String> listView;
 	
 	private ObservableList<String> obsList;
 	
@@ -48,21 +50,39 @@ public class Controller {
 	
 	private void showItem(Stage mainStage) {
 		//handles selection and display of items
+		String out;
+		if (listView.getSelectionModel().getSelectedItem().equals(null)) {
+			out =" ";
+		} else {
+			
+			String text[] = listView.getSelectionModel().getSelectedItem().split(" ");
+			out = text[0] + " " + text[1] + "\n";
+			if (!text[2].equals("null")) {
+				out += text[2] + " ";
+			}
+			if (!text[3].equals("null")) {
+				out += text[3];
+			}
+		}
+		SongDisplay.setText(out);
 	}
 	
-	public void start() {
+	public void start(Stage mainStage) {
 		//creates obslist and sets listview to display it. will need to modify later.
+		File temp = new File(SongLib.class.getResource("SongData.txt").getFile());
 		try {
-			File songData = new File("SongData.txt");
-			if (songData.createNewFile()) {
-				obsList = FXCollections.observableArrayList();
-			} else {
-				obsList = FXCollections.observableArrayList(Files.readAllLines(Paths.get("../SongData.txt")));
-			}
+			obsList = FXCollections.observableArrayList(Files.readAllLines(temp.toPath(),StandardCharsets.UTF_8));
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		listView.setItems(obsList);
+		//select first item
+		listView.getSelectionModel().select(0);
+		//set listener for the items
+		listView.getSelectionModel().selectedIndexProperty().addListener((obs,oldVal,newVal)->showItem(mainStage));
+		//Song format should be "name artist year album" where year and album may be replaced with null if they do not exist.
 	}
 
 }

@@ -12,13 +12,13 @@ public class SongLib extends Application {
 		//overrides inherited start method
 		FXMLLoader loading = new FXMLLoader();
 		//fetch fxml file, which will be written later
-		loading.setLocation(getClass().getResource(""));
+		loading.setLocation(getClass().getResource("SongUI.fxml"));
 		AnchorPane root = (AnchorPane)loading.load();
 		
 		Controller listController = loading.getController();
-		listController.start();
+		listController.start(primaryStage);
 		
-		Scene scene = new Scene(root, 200,300);
+		Scene scene = new Scene(root, 800,500);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		
