@@ -22,6 +22,7 @@ public class SongLib extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		
+		
 	} 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
