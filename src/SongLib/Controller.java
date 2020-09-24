@@ -21,6 +21,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -41,8 +42,8 @@ public class Controller {
 	@FXML ListView<String> listView;
 	boolean editFlag;
 	private ObservableList<String> obsList;
-	private ArrayList<SongObj> obsListMirror;
-	
+	private ArrayList<SongObj> obsListMirror = new ArrayList<SongObj>();
+	private Stage main;
 	public class SongObj {
 		String artist,song,year, album,ext;
 		public SongObj(String item) {
@@ -52,6 +53,14 @@ public class Controller {
 			this.song = data[1];
 			this.year = data[2];
 			this.album = data[3];
+		}
+		public SongObj(String artist,String song,String year,String album) {
+			ext = artist+" "+ song+" "+year+" "+album;
+			this.artist = artist;
+			this.song = song;
+			this.year = year;
+			this.album = album;
+			
 		}
 		public String toString() {
 			return ext;
@@ -69,29 +78,41 @@ public class Controller {
 		//creates and enters a song object into the observable list
 		String artist = ArtistField.getText();
 		String song = SongField.getText();
-		if (check(artist,song)) {
-			//copy alert code later
+		if (artist.equals("") || song.equals("")) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Input Error");
+			alert.setHeaderText("Artist or Song field has not been filled");
+			alert.setContentText("Both Artist and Song fields must be filled for the song to be entered.");
+			alert.showAndWait();
 			return;
 		}
-		String[] text;
-		for (int i =0;i< obsList.size();i++) {
-			text = obsList.get(i).split(" ");
-			
+		int mark = check(artist,song);
+		if (check(artist,song) > 0) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Duplicate Error");
+			alert.setHeaderText("The song is already present in the database");
+			alert.setContentText("To view the song, please select it from the window on the right.");
+			alert.showAndWait();
+			return;
+		} else
+		{
+			mark*=-1;
+			mark -= 1;
+			String year = YearField.getText();
+			String album = AlbumField.getText();
+			if (year.equals("")) {year = "null";}
+			if (album.equals("")) {album = "null";}
+			obsListMirror.add(mark, new SongObj(artist,song, year,album));
+			obsList.add(mark,obsListMirror.get(mark).ext);
+			listView.setItems(obsList);
+			showItem(main);
 		}
-		
 		
 	}
-	private boolean check(String artist, String song) {
-		//negative number means song is not in list, gives where item would be if inserted
+	private int check(String artist, String song) {
+		//negative number means song is not in list, gives where item would be if inserted +1
 		//positive number is index of matching song
-		SongObj text;
-		for (int i = 0;i<obsList.size();i++) {
-			text = obsListMirror.get(i); 
-			if (artist.equals(text.artist) && song.equals(text.song)) {
-				return true;
-			}
-		}
-		return false;
+		return 0; //placeholder, will implement later
 		
 	}
 	
@@ -122,13 +143,17 @@ public class Controller {
 	public void start(Stage mainStage) {
 		//creates obslist and sets listview to display it. will need to modify later.
 		Scanner input;
+		ArrayList<String> cont = new ArrayList<String>();
+		this.main = mainStage;
 		try {
-			input = new Scanner(new BufferedReader(new FileReader("SongData.txt")));
+			input = new Scanner(new File("SongData.txt"));
 			while (input.hasNextLine()) {
 				SongObj temp = new SongObj(input.nextLine());
 				obsListMirror.add(temp);
-				obsList.add(temp.artist + "-" + temp.song);
+				cont.add(temp.artist + "-" + temp.song);
 			}
+			obsList = FXCollections.observableArrayList(cont);
+			
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
