@@ -1,8 +1,10 @@
 package SongLib;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -119,12 +121,17 @@ public class Controller {
 	
 	public void start(Stage mainStage) {
 		//creates obslist and sets listview to display it. will need to modify later.
-		String url ="SongData.txt";
-		Scanner input = new Scanner(url);
-		while (input.hasNextLine()) {
-			SongObj temp = new SongObj(input.nextLine());
-			obsListMirror.add(temp);
-			obsList.add(temp.artist + "-" + temp.song);
+		Scanner input;
+		try {
+			input = new Scanner(new BufferedReader(new FileReader("SongData.txt")));
+			while (input.hasNextLine()) {
+				SongObj temp = new SongObj(input.nextLine());
+				obsListMirror.add(temp);
+				obsList.add(temp.artist + "-" + temp.song);
+			}
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 		//obsList = FXCollections.observableArrayList(Files.readAllLines(temp.toPath(),StandardCharsets.UTF_8));
 		listView.setItems(obsList);
@@ -142,7 +149,7 @@ public class Controller {
 					public void run()  {
 						PrintWriter pw = null;
 						try {
-							pw = new PrintWriter(new FileOutputStream(url));
+							pw = new PrintWriter(new FileOutputStream("SongData.txt"));
 						} catch (FileNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
