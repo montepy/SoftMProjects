@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -44,7 +45,8 @@ public class Controller {
 	private ObservableList<String> obsList;
 	private ArrayList<SongObj> obsListMirror = new ArrayList<SongObj>();
 	private Stage main;
-	public class SongObj {
+	
+	public class SongObj implements Comparable<SongObj> {
 		String artist,song,year, album,ext;
 		public SongObj(String item) {
 			ext = item;
@@ -65,6 +67,26 @@ public class Controller {
 		public String toString() {
 			return ext;
 		}
+		@Override
+		public int compareTo(SongObj o) {
+			// TODO Auto-generated method stub
+			if (this.artist.compareTo(o.artist) >0 ) {
+				return 1;
+			} 
+			if (this.artist.compareTo(o.artist) < 0) {
+				return -1;
+			}
+			//if the artists are equal, compare based off of song.
+			if (this.song.compareTo(o.song) > 0) {
+				return 1;
+			} 
+			if (this.song.compareTo(o.song) < 0){
+				return -1;
+			}
+			//if both artist and song are equal, return 0
+			return 0;
+		}
+		
 	}
 	
 	public void Move(ActionEvent e) {
@@ -78,41 +100,57 @@ public class Controller {
 		//creates and enters a song object into the observable list
 		String artist = ArtistField.getText();
 		String song = SongField.getText();
+		String year = YearField.getText();
+		String album = AlbumField.getText();
+		if (year.equals("")) {year = "null";}
+		if (album.equals("")) {album = "null";}
+		SongObj out = new SongObj(artist,song,year,album);
+		
 		if (artist.equals("") || song.equals("")) {
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("Input Error");
 			alert.setHeaderText("Artist or Song field has not been filled");
 			alert.setContentText("Both Artist and Song fields must be filled for the song to be entered.");
 			alert.showAndWait();
+			clearFields();
 			return;
 		}
-		int mark = check(artist,song);
-		if (check(artist,song) > 0) {
+		if (check(out)) {
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("Duplicate Error");
 			alert.setHeaderText("The song is already present in the database");
 			alert.setContentText("To view the song, please select it from the window on the right.");
 			alert.showAndWait();
+			clearFields();
 			return;
 		} else
 		{
-			mark*=-1;
-			mark -= 1;
-			String year = YearField.getText();
-			String album = AlbumField.getText();
-			if (year.equals("")) {year = "null";}
-			if (album.equals("")) {album = "null";}
-			obsListMirror.add(mark, new SongObj(artist,song, year,album));
-			obsList.add(mark,obsListMirror.get(mark).ext);
+			obsListMirror.add(out);
+			Collections.sort(obsListMirror);
+			int ind = obsListMirror.indexOf(out);
+			obsList.add(ind, out.artist+" "+out.song);
 			listView.setItems(obsList);
+			listView.getSelectionModel().select(ind);
 			showItem(main);
 		}
+		clearFields();
 		
 	}
-	private int check(String artist, String song) {
-		//negative number means song is not in list, gives where item would be if inserted +1
-		//positive number is index of matching song
-		return 0; //placeholder, will implement later
+	public void clearFields() {
+
+		ArtistField.clear();
+		SongField.clear();
+		AlbumField.clear();
+		YearField.clear();
+	}
+	private boolean check(SongObj out) {
+		//returns boolean telling whether object is in list.
+		for (int i =0;i< obsListMirror.size();i++) {
+			if (obsListMirror.get(i).compareTo(out) == 0) {
+				return true;
+			}
+		}
+		return false; 
 		
 	}
 	
@@ -162,6 +200,7 @@ public class Controller {
 		listView.setItems(obsList);
 		//select first item
 		listView.getSelectionModel().select(0);
+		showItem(mainStage);
 		//set listener for the items
 		listView.getSelectionModel().selectedIndexProperty().addListener((obs,oldVal,newVal)->showItem(mainStage));
 		//Song format should be "name artist year album" where year and album may be replaced with null if they do not exist.
@@ -179,9 +218,11 @@ public class Controller {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						for (int i = 0;i<obsList.size();i++) {
-							pw.write(obsList.get(i) + "\n");
+						for (int i = 0;i<obsListMirror.size();i++) {
+							System.out.println(obsListMirror.get(i).ext);
+							pw.write(obsListMirror.get(i).ext + "\n");
 						}
+						pw.flush();
 					}
 				});
 			}
