@@ -156,6 +156,17 @@ public class Controller {
 	
 	public void deleteSong(ActionEvent e) {
 		//removes a song from the list
+		if(obsList.isEmpty()) {
+			Alert alert = new Alert(AlertType.WARNING);
+			alert.setTitle("CAUTION");
+			alert.setHeaderText("There is nothing to delete");
+			alert.setContentText("The song list is empty - there is nothing to delete.");
+			alert.showAndWait();
+		} else {
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("CAUTION");
+			alert.setHeaderText("The selected song is about to be deleted from your song library");
+			alert.setContentText("Are you sure you want to delete the selected song from your library");
 	}
 	
 	private void showItem(Stage mainStage) {
