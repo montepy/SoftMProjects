@@ -27,11 +27,10 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 //this class gets fetched from AnchorPane in FXML
+//Edward Wang
 public class Controller {
 	//FXML directive links widget to fxml element
 	@FXML Button Edit;
-	@FXML Button Left;
-	@FXML Button Right;
 	@FXML Button Delete;
 	@FXML Button Enter;
 	@FXML TextField ArtistField;
@@ -41,7 +40,8 @@ public class Controller {
 	@FXML ScrollPane SongList;
 	@FXML Label SongDisplay;
 	@FXML ListView<String> listView;
-	boolean editFlag;
+	boolean editFlag = false;
+	int save = -1;
 	private ObservableList<String> obsList;
 	private ArrayList<SongObj> obsListMirror = new ArrayList<SongObj>();
 	private Stage main;
@@ -63,6 +63,10 @@ public class Controller {
 			this.year = year;
 			this.album = album;
 			
+		}
+		public String resetExt() {
+			ext = artist+" "+ song+" "+year+" "+album;
+			return ext;
 		}
 		public String toString() {
 			return ext;
@@ -93,7 +97,18 @@ public class Controller {
 		//handles moving in the list with the right and left buttons
 	}
 	public void editSong(ActionEvent e) {
-		//handles song edits by modifying song within list
+		//happens on edit button press
+		
+		Enter.setText("Enter Edit");
+		editFlag = true;
+		save = listView.getSelectionModel().getSelectedIndex();
+	
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Entering Edits");
+		alert.setHeaderText("Fill fields and then press the Enter Edit button.");
+		alert.setContentText("Any fields not filled will remain the same.\n Enter empty into a field(year or album) if you wish to erase it.");
+		alert.showAndWait();
+		
 	}
 	
 	public void enterSong(ActionEvent e) {
@@ -102,6 +117,37 @@ public class Controller {
 		String song = SongField.getText();
 		String year = YearField.getText();
 		String album = AlbumField.getText();
+		if (editFlag) {
+			int ind = listView.getSelectionModel().getSelectedIndex();
+			SongObj toBeEdited = obsListMirror.get(ind);
+			if (!artist.trim().equals("")) {toBeEdited.artist = artist;}
+			if (!song.trim().equals("")) {toBeEdited.song = song;}
+			if (!album.equals("")) {
+				if (album.equals("empty"))
+					{toBeEdited.album = "null";}
+				else {toBeEdited.album = year;}
+			}
+			if (!year.equals("")) {
+				if (year.equals("empty"))
+					{toBeEdited.year = "null";}
+				else {toBeEdited.year = year;}
+			}
+			toBeEdited.resetExt();
+			obsList.set(ind, toBeEdited.artist + " " + toBeEdited.song);
+			listView.setItems(obsList);
+			listView.getSelectionModel().select(ind);
+			showItem(main);
+			editFlag = false;
+			save = -1;
+			Enter.setText("Enter Song");
+			
+			clearFields();
+			return;
+			
+			
+			
+		}
+		
 		if (year.equals("")) {year = "null";}
 		if (album.equals("")) {album = "null";}
 		SongObj out = new SongObj(artist,song,year,album);
@@ -166,7 +212,8 @@ public class Controller {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("CAUTION");
 			alert.setHeaderText("The selected song is about to be deleted from your song library");
-			alert.setContentText("Are you sure you want to delete the selected song from your library");
+			alert.setContentText("Are you sure you want to delete the selected song from your library?");
+		}
 	}
 	
 	private void showItem(Stage mainStage) {
@@ -178,7 +225,7 @@ public class Controller {
 			
 			int ind = listView.getSelectionModel().getSelectedIndex();
 			SongObj ref= obsListMirror.get(ind);
-			out = ref.artist + " " + ref.song + "\n";
+			out = ref.artist + ", " + ref.song + "\n";
 			if (!ref.year.equals("null")) {
 				out += ref.year + " ";
 			}
@@ -187,6 +234,16 @@ public class Controller {
 			}
 		}
 		SongDisplay.setText(out);
+		if (editFlag && listView.getSelectionModel().getSelectedIndex() != save) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Edits have been canceled");
+			alert.setHeaderText("Edits have been canceled.");
+			alert.showAndWait();
+			clearFields();
+			editFlag = false;
+			Enter.setText("Enter Song");
+			save = -1;
+		}
 	}
 	
 	public void start(Stage mainStage) {
@@ -199,7 +256,7 @@ public class Controller {
 			while (input.hasNextLine()) {
 				SongObj temp = new SongObj(input.nextLine());
 				obsListMirror.add(temp);
-				cont.add(temp.artist + "-" + temp.song);
+				cont.add(temp.artist + ", " + temp.song);
 			}
 			obsList = FXCollections.observableArrayList(cont);
 			

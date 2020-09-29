@@ -6,6 +6,7 @@ import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+//Edward Wang
 public class SongLib extends Application {
 	
 	public void start(Stage primaryStage) throws Exception {
