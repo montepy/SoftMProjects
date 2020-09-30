@@ -214,24 +214,6 @@ public class Controller {
 			alert.setHeaderText("The selected song is about to be deleted from your song library");
 			alert.setContentText("Are you sure you want to delete the selected song from your library?");
 			
-			Optional<ButtonType> result = dialog.showAndWait();
- 			if (result.isPresent() && result.get() == ButtonType.OK) {
-     			    formatSystem();
-				int selectedIndex = songList.getSelectionModel().getSelectedIndex();
-				obsList.remove(selectedIndex);
-				
-				if(obsList.isEmpty()) {			
-					titleEditField.setText("");
-					artistEditField.setText("");
-					albumEditField.setText("");
-					yearEditField.setText("");
-				} else if (selectedIndex == obsList.size()-1) {
-					songList.getSelectionModel().select(selectedIndex--);
-				} else {
-					songList.getSelectionModel().select(selectedIndex++);
-				}
-			} else {
-				return;
  			}
 		}
 	}
