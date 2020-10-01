@@ -19,8 +19,9 @@ public class SongLib extends Application {
 		Controller listController = loading.getController();
 		listController.start(primaryStage);
 		
-		Scene scene = new Scene(root, 800,500);
+		Scene scene = new Scene(root, 600,400);
 		primaryStage.setScene(scene);
+		primaryStage.setResizable(false);
 		primaryStage.show();
 		
 		

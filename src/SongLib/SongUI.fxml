@@ -4,11 +4,9 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="SongLib.Controller">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="SongLib.Controller">
    <children>
       <Button fx:id="Edit" layoutX="277.0" layoutY="42.0" mnemonicParsing="false" onAction="#editSong" text="Edit" />
-      <Button fx:id="Left" layoutX="46.0" layoutY="143.0" mnemonicParsing="false" onAction="#Move" text="&lt;=" />
-      <Button fx:id="Right" layoutX="219.0" layoutY="143.0" mnemonicParsing="false" onAction="#Move" text="=&gt;" />
       <Button fx:id="Delete" layoutX="277.0" layoutY="96.0" mnemonicParsing="false" onAction="#deleteSong" text="Delete" />
       <TextField fx:id="ArtistField" layoutX="46.0" layoutY="227.0" promptText="Enter Artist" />
       <TextField fx:id="SongField" layoutX="260.0" layoutY="227.0" promptText="Enter Song Name" />

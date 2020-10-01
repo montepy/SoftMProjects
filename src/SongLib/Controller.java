@@ -57,7 +57,7 @@ public class Controller {
 			this.album = data[3];
 		}
 		public SongObj(String artist,String song,String year,String album) {
-			ext = artist+" "+ song+" "+year+" "+album;
+			ext = artist.replace(" ", "_")+" "+ song.replace("_", " ")+" "+year.replace("_", " ")+" "+album.replace("_", " ");
 			this.artist = artist;
 			this.song = song;
 			this.year = year;
@@ -74,17 +74,17 @@ public class Controller {
 		@Override
 		public int compareTo(SongObj o) {
 			// TODO Auto-generated method stub
-			if (this.artist.compareTo(o.artist) >0 ) {
-				return 1;
-			} 
-			if (this.artist.compareTo(o.artist) < 0) {
-				return -1;
-			}
-			//if the artists are equal, compare based off of song.
 			if (this.song.compareTo(o.song) > 0) {
 				return 1;
 			} 
 			if (this.song.compareTo(o.song) < 0){
+				return -1;
+			}
+			//if the songs are equal, compare based off of artist.
+			if (this.artist.compareTo(o.artist) >0 ) {
+				return 1;
+			} 
+			if (this.artist.compareTo(o.artist) < 0) {
 				return -1;
 			}
 			//if both artist and song are equal, return 0
@@ -98,7 +98,7 @@ public class Controller {
 	}
 	public void editSong(ActionEvent e) {
 		//happens on edit button press
-		
+		if (obsList.size() == 0) {return;}
 		Enter.setText("Enter Edit");
 		editFlag = true;
 		save = listView.getSelectionModel().getSelectedIndex();
@@ -117,6 +117,15 @@ public class Controller {
 		String song = SongField.getText();
 		String year = YearField.getText();
 		String album = AlbumField.getText();
+		if (artist.trim().contains(" ")) {
+			artist.replace(" ", "_");
+		}
+		if (album.trim().contains(" ")) {
+			album.replace(" ", "_");
+		}
+		if (song.trim().contains(" ")) {
+			song.replace(" ", "_");
+		}
 		if (editFlag) {
 			int ind = listView.getSelectionModel().getSelectedIndex();
 			SongObj toBeEdited = obsListMirror.get(ind);
@@ -133,7 +142,7 @@ public class Controller {
 				else {toBeEdited.year = year;}
 			}
 			toBeEdited.resetExt();
-			obsList.set(ind, toBeEdited.artist + " " + toBeEdited.song);
+			obsList.set(ind, toBeEdited.artist.replace("_", " ") + " " + toBeEdited.song.replace("_", " "));
 			listView.setItems(obsList);
 			listView.getSelectionModel().select(ind);
 			showItem(main);
@@ -174,7 +183,7 @@ public class Controller {
 			obsListMirror.add(out);
 			Collections.sort(obsListMirror);
 			int ind = obsListMirror.indexOf(out);
-			obsList.add(ind, out.artist+" "+out.song);
+			obsList.add(ind, out.artist.replace("_", " ")+" "+out.song.replace("_", " "));
 			listView.setItems(obsList);
 			listView.getSelectionModel().select(ind);
 			showItem(main);
@@ -209,30 +218,49 @@ public class Controller {
 			alert.setContentText("The song list is empty - there is nothing to delete.");
 			alert.showAndWait();
 		} else {
-			Alert alert = new Alert(AlertType.INFORMATION);
+			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("CAUTION");
 			alert.setHeaderText("The selected song is about to be deleted from your song library");
 			alert.setContentText("Are you sure you want to delete the selected song from your library?");
-			
- 			}
+			alert.showAndWait();
+			if (alert.getResult() == ButtonType.OK) {
+				int ind = listView.getSelectionModel().getSelectedIndex();
+				obsListMirror.remove(ind);
+				obsList.remove(ind);
+				/*if (ind == obsList.size()-1) {
+					ind = 0;
+				}else {
+					ind++;
+				}*/
+				listView.setItems(obsList);
+				if (obsList.size() != 0) {
+					showItem(main);
+					listView.getSelectionModel().select(ind);
+				}
+				
+			} else {
+				return;
+			}
 		}
+
 	}
 	
 	private void showItem(Stage mainStage) {
 		//handles selection and display of items
 		String out;
-		if (listView.getSelectionModel().getSelectedItem().equals(null)) {
+		if (listView.getSelectionModel().getSelectedItem() == null) {
 			out =" ";
 		} else {
 			
 			int ind = listView.getSelectionModel().getSelectedIndex();
 			SongObj ref= obsListMirror.get(ind);
-			out = ref.artist + ", " + ref.song + "\n";
+			
+			out = ref.artist.replace("_", " ") + ", " + ref.song.replace("_"," ") + "\n";
 			if (!ref.year.equals("null")) {
 				out += ref.year + " ";
 			}
 			if (!ref.album.equals("null")) {
-				out += ref.album;
+				out += ref.album.replace("_", " ");
 			}
 		}
 		SongDisplay.setText(out);
@@ -258,7 +286,7 @@ public class Controller {
 			while (input.hasNextLine()) {
 				SongObj temp = new SongObj(input.nextLine());
 				obsListMirror.add(temp);
-				cont.add(temp.artist + ", " + temp.song);
+				cont.add(temp.artist.replace("_", " ") + ", " + temp.song.replace("_", " "));
 			}
 			obsList = FXCollections.observableArrayList(cont);
 			
