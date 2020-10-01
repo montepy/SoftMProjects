@@ -47,17 +47,23 @@ public class Controller {
 	private Stage main;
 	
 	public class SongObj implements Comparable<SongObj> {
-		String artist,song,year, album,ext;
+		String artist,song,year, album,ext,out;
 		public SongObj(String item) {
-			ext = item;
-			String[] data = item.split(" ");
+			ext = item.toUpperCase();
+			String[] data = ext.split(" ");
 			this.artist = data[0];
 			this.song = data[1];
 			this.year = data[2];
 			this.album = data[3];
+			out = artist+ " "+song + " "+year + " " + album;
 		}
 		public SongObj(String artist,String song,String year,String album) {
-			ext = artist.replace(" ", "_")+" "+ song.replace("_", " ")+" "+year.replace("_", " ")+" "+album.replace("_", " ");
+			artist =artist.toUpperCase();
+			song = song.toUpperCase();
+			year = year.toUpperCase();
+			album = album.toUpperCase();
+			ext = artist+ " "+song + " "+year + " " + album;
+			out = artist.replace(" ", "_")+" "+ song.replace("_", " ")+" "+year.replace("_", " ")+" "+album.replace("_", " ");
 			this.artist = artist;
 			this.song = song;
 			this.year = year;
@@ -128,24 +134,40 @@ public class Controller {
 		}
 		if (editFlag) {
 			int ind = listView.getSelectionModel().getSelectedIndex();
-			SongObj toBeEdited = obsListMirror.get(ind);
-			if (!artist.trim().equals("")) {toBeEdited.artist = artist;}
-			if (!song.trim().equals("")) {toBeEdited.song = song;}
+			SongObj toBeEdited = obsListMirror.remove(ind);
+			obsList.remove(ind);
+			if (!artist.trim().equals("")) {toBeEdited.artist = artist.toUpperCase();}
+			if (!song.trim().equals("")) {toBeEdited.song = song.toUpperCase();}
 			if (!album.equals("")) {
 				if (album.equals("empty"))
-					{toBeEdited.album = "null";}
-				else {toBeEdited.album = year;}
+					{toBeEdited.album = "NULL";}
+				else {toBeEdited.album = album.toUpperCase();}
 			}
 			if (!year.equals("")) {
 				if (year.equals("empty"))
-					{toBeEdited.year = "null";}
-				else {toBeEdited.year = year;}
+					{toBeEdited.year = "NULL";}
+				else {toBeEdited.year = year.toUpperCase();}
 			}
 			toBeEdited.resetExt();
-			obsList.set(ind, toBeEdited.artist.replace("_", " ") + " " + toBeEdited.song.replace("_", " "));
+			if (obsList.contains(toBeEdited.artist.replace("_", " ") + " " + toBeEdited.song.replace("_", " "))) {
+				Alert alert = new Alert(AlertType.INFORMATION);
+				alert.setTitle("Duplicate Error");
+				alert.setHeaderText("The song is already present in the database");
+				alert.setContentText("To view the song, please select it from the window on the right.");
+				alert.showAndWait();
+				clearFields();
+				editFlag = false;
+				save = -1;
+				Enter.setText("Enter Song");
+				return;
+				
+			}
+			obsListMirror.add(toBeEdited);
+			Collections.sort(obsListMirror);
+			int x = obsListMirror.indexOf(toBeEdited);
+			obsList.add(x, toBeEdited.artist.replace("_", " ") + " " + toBeEdited.song.replace("_", " "));
 			listView.setItems(obsList);
-			listView.getSelectionModel().select(ind);
-			showItem(main);
+			listView.getSelectionModel().select(x);;
 			editFlag = false;
 			save = -1;
 			Enter.setText("Enter Song");
@@ -157,8 +179,8 @@ public class Controller {
 			
 		}
 		
-		if (year.equals("")) {year = "null";}
-		if (album.equals("")) {album = "null";}
+		if (year.equals("")) {year = "NULL";}
+		if (album.equals("")) {album = "NULL";}
 		SongObj out = new SongObj(artist,song,year,album);
 		
 		if (artist.equals("") || song.equals("")) {
@@ -178,16 +200,14 @@ public class Controller {
 			alert.showAndWait();
 			clearFields();
 			return;
-		} else
-		{
-			obsListMirror.add(out);
-			Collections.sort(obsListMirror);
-			int ind = obsListMirror.indexOf(out);
-			obsList.add(ind, out.artist.replace("_", " ")+" "+out.song.replace("_", " "));
-			listView.setItems(obsList);
-			listView.getSelectionModel().select(ind);
-			showItem(main);
-		}
+		} 
+		obsListMirror.add(out);
+		Collections.sort(obsListMirror);
+		int ind = obsListMirror.indexOf(out);
+		obsList.add(ind, out.song.replace("_", " ")+", "+out.artist.replace("_", " "));
+		listView.setItems(obsList);
+		listView.getSelectionModel().select(ind);
+		showItem(main);
 		clearFields();
 		
 	}
@@ -245,6 +265,11 @@ public class Controller {
 
 	}
 	
+	public boolean checkFields() {
+		return !SongField.getText().equals("") &&!ArtistField.getText().equals("")&&
+				!YearField.getText().equals("") &&!AlbumField.getText().equals("");
+	}
+	
 	private void showItem(Stage mainStage) {
 		//handles selection and display of items
 		String out;
@@ -255,20 +280,22 @@ public class Controller {
 			int ind = listView.getSelectionModel().getSelectedIndex();
 			SongObj ref= obsListMirror.get(ind);
 			
-			out = ref.artist.replace("_", " ") + ", " + ref.song.replace("_"," ") + "\n";
-			if (!ref.year.equals("null")) {
-				out += ref.year + " ";
+			out = "Artist:" + ref.artist.replace("_", " ")
+					+ "\n"+ "Song:" + ref.song.replace("_"," ") + "\n";
+			if (!ref.year.equals("NULL")) {
+				out += "Year:" + ref.year + "\n";
 			}
-			if (!ref.album.equals("null")) {
-				out += ref.album.replace("_", " ");
+			if (!ref.album.equals("NULL")) {
+				out += "Album:" + ref.album.replace("_", " ");
+				System.out.println("Album");
 			}
 		}
 		SongDisplay.setText(out);
 		if (editFlag && listView.getSelectionModel().getSelectedIndex() != save) {
-			Alert alert = new Alert(AlertType.INFORMATION);
+			/*Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("Edits have been canceled");
 			alert.setHeaderText("Edits have been canceled.");
-			alert.showAndWait();
+			alert.showAndWait();*/
 			clearFields();
 			editFlag = false;
 			Enter.setText("Enter Song");
@@ -286,7 +313,7 @@ public class Controller {
 			while (input.hasNextLine()) {
 				SongObj temp = new SongObj(input.nextLine());
 				obsListMirror.add(temp);
-				cont.add(temp.artist.replace("_", " ") + ", " + temp.song.replace("_", " "));
+				cont.add(temp.song.replace("_", " ") + ", " + temp.artist.replace("_", " "));
 			}
 			obsList = FXCollections.observableArrayList(cont);
 			
@@ -317,8 +344,8 @@ public class Controller {
 							e.printStackTrace();
 						}
 						for (int i = 0;i<obsListMirror.size();i++) {
-							System.out.println(obsListMirror.get(i).ext);
-							pw.write(obsListMirror.get(i).ext + "\n");
+							//System.out.println(obsListMirror.get(i).ext);
+							pw.write(obsListMirror.get(i).out + "\n");
 						}
 						pw.flush();
 					}
